@@ -1,9 +1,9 @@
 <?
 
 /*{
-"VERSION": 1.11,
+"VERSION": 1.12,
 "AUTHOR": "MOISÉS DE LIMA",
-"UPDATE": "08/06/2018"
+"UPDATE": "12/06/2018"
 }*/
 
 /*******************************************************************************
@@ -232,69 +232,89 @@ class TFPDF_TFPDF{
 
 	function CheckPageBreak($h){
 
-	    //If the height h would cause an overflow, add a new page immediately
-	    if($this->GetY()+$h>$this->PageBreakTrigger)
-	        $this->AddPage($this->CurOrientation);
+		//If the height h would cause an overflow, add a new page immediately
+		if(($this->GetY() + $h) > $this->PageBreakTrigger){
+			$this->AddPage($this->CurOrientation);
+		}
 	}
 
 	function NbLines($w,$txt){
 
-	    //Computes the number of lines a MultiCell of width w will take
-	    $cw=&$this->CurrentFont['cw'];
-	    if($w==0)
-	        $w=$this->w-$this->rMargin-$this->x;
-	    $wmax=($w-2*$this->cMargin)*1000/$this->FontSize;
-	    $s=str_replace("\r",'',$txt);
-	    $nb=strlen($s);
-	    if($nb>0 and $s[$nb-1]=="\n")
-	        $nb--;
-	    $sep=-1;
-	    $i=0;
-	    $j=0;
-	    $l=0;
-	    $nl=1;
-	    while($i<$nb)
-	    {
-	        $c=$s[$i];
-	        if($c=="\n")
-	        {
-	            $i++;
-	            $sep=-1;
-	            $j=$i;
-	            $l=0;
-	            $nl++;
-	            continue;
-	        }
-	        if($c==' ')
-	            $sep=$i;
-	        $l+=$cw[$c];
-	        if($l>$wmax)
-	        {
-	            if($sep==-1)
-	            {
-	                if($i==$j)
-	                    $i++;
-	            }
-	            else
-	                $i=$sep+1;
-	            $sep=-1;
-	            $j=$i;
-	            $l=0;
-	            $nl++;
-	        }
-	        else
-	            $i++;
-	    }
-	    return $nl;
+		//Computes the number of lines a MultiCell of width w will take
+		$cw = &$this->CurrentFont['cw'];
+		if($w == 0){
+			$w = $this->w - $this->rMargin - $this->x;
+		}
+
+		$wmax = (($w - 2) * $this->cMargin) * 1000 / $this->FontSize;
+		$s = str_replace("\r", '', $txt);
+		$nb = strlen($s);
+
+		if($nb > 0 and $s[($nb - 1)] == "\n"){
+			$nb--;
+		}
+
+		$sep = -1;
+		$i = 0;
+		$j = 0;
+		$l = 0;
+		$nl = 1;
+
+		while($i < $nb){
+
+			$c = $s[$i];
+			if($c == "\n"){
+
+				$i++;
+				$sep = -1;
+				$j = $i;
+				$l = 0;
+				$nl++;
+
+				continue;
+			}
+
+			if($c == ' '){
+				$sep = $i;
+			}
+
+			$l += $cw[$c];
+
+			if($l > $wmax){
+
+				if($sep == -1){
+
+					if($i == $j){
+						$i++;
+					}
+				}else{
+					$i = $sep + 1;
+				}
+
+				$sep = -1;
+				$j = $i;
+				$l = 0;
+				$nl++;
+
+			}else{
+				$i++;
+			}
+		}
+
+		return $nl;
+
 	}
 
-	function SetMargins($left, $top, $right=null){
+	function SetMargins($left, $top, $right = null){
 
 		// Set left, top and right margins
 		$this->lMargin = $left;
 		$this->tMargin = $top;
-		if($right===null)
+
+		if($right===null){
 			$right = $left;
+		}
+
 		$this->rMargin = $right;
 	}
 
@@ -302,7 +322,8 @@ class TFPDF_TFPDF{
 
 		// Set left margin
 		$this->lMargin = $margin;
-		if($this->page > 0 && $this->x<$margin){
+
+		if($this->page > 0 && $this->x < $margin){
 			$this->x = $margin;
 		}
 	}
@@ -319,42 +340,47 @@ class TFPDF_TFPDF{
 		$this->rMargin = $margin;
 	}
 
-	function SetAutoPageBreak($auto, $margin=0){
+	function SetAutoPageBreak($auto, $margin = 0){
 
 		// Set auto page break mode and triggering margin
 		$this->AutoPageBreak = $auto;
 		$this->bMargin = $margin;
-		$this->PageBreakTrigger = $this->h-$margin;
+		$this->PageBreakTrigger = $this->h - $margin;
 	}
 
 	function SetDisplayMode($zoom, $layout='default'){
 
 		// Set display mode in viewer
-		if($zoom=='fullpage' || $zoom=='fullwidth' || $zoom=='real' || $zoom=='default' || !is_string($zoom))
+		if($zoom == 'fullpage' or $zoom == 'fullwidth' or $zoom == 'real' or $zoom == 'default' or !is_string($zoom)){
 			$this->ZoomMode = $zoom;
-		else
+		}else{
 			$this->Error('Incorrect zoom display mode: '.$zoom);
-		if($layout=='single' || $layout=='continuous' || $layout=='two' || $layout=='default')
+		}
+
+		if($layout == 'single' or $layout == 'continuous' or $layout == 'two' or $layout == 'default'){
 			$this->LayoutMode = $layout;
-		else
+		}else{
 			$this->Error('Incorrect layout display mode: '.$layout);
+		}
 	}
 
 	function SetCompression($compress){
 
 		// Set page compression
-		if(function_exists('gzcompress'))
+		if(function_exists('gzcompress')){
 			$this->compress = $compress;
-		else
+		}else{
 			$this->compress = false;
+		}
 	}
 
-	function SetTitle($title, $isUTF8=false){
+	function SetTitle($title, $isUTF8 = false){
 
 		// Title of document
 		if($isUTF8){
 			$title = $this->_UTF8toUTF16($title);
 		}
+
 		$this->title = $title;
 	}
 
@@ -364,6 +390,7 @@ class TFPDF_TFPDF{
 		if($isUTF8){
 			$author = $this->_UTF8toUTF16($author);
 		}
+
 		$this->author = $author;
 	}
 
@@ -434,9 +461,10 @@ class TFPDF_TFPDF{
 	function AddPage($orientation = '', $size = '', $rotation = 0){
 
 		// Start a new page
-		if($this->state==0){
+		if($this->state == 0){
 			$this->Open();
 		}
+
 		$family = $this->FontFamily;
 		$style = $this->FontStyle.($this->underline ? 'U' : '');
 		$fontsize = $this->FontSizePt;
@@ -445,8 +473,9 @@ class TFPDF_TFPDF{
 		$fc = $this->FillColor;
 		$tc = $this->TextColor;
 		$cf = $this->ColorFlag;
-		if($this->page > 0)
-		{
+
+		if($this->page > 0){
+
 			// Page footer
 			$this->InFooter = true;
 			$this->Footer();
@@ -454,6 +483,7 @@ class TFPDF_TFPDF{
 			// Close page
 			$this->_endpage();
 		}
+
 		// Start new page
 		$this->_beginpage($orientation,$size,$rotation);
 		// Set line cap style to square
@@ -462,8 +492,9 @@ class TFPDF_TFPDF{
 		$this->LineWidth = $lw;
 		$this->_out(sprintf('%.2F w',$lw*$this->k));
 		// Set font
-		if($family)
+		if($family){
 			$this->SetFont($family,$style,$fontsize);
+		}
 		// Set colors
 		$this->DrawColor = $dc;
 		if($dc!='0 G'){
@@ -479,24 +510,25 @@ class TFPDF_TFPDF{
 		$this->InHeader = true;
 		$this->Header();
 		$this->InHeader = false;
+
 		// Restore line width
-		if($this->LineWidth!=$lw)
-		{
+		if($this->LineWidth!=$lw){
 			$this->LineWidth = $lw;
 			$this->_out(sprintf('%.2F w',$lw*$this->k));
 		}
+
 		// Restore font
 		if($family){
 			$this->SetFont($family,$style,$fontsize);
 		}
+
 		// Restore colors
-		if($this->DrawColor!=$dc)
-		{
+		if($this->DrawColor!=$dc){
 			$this->DrawColor = $dc;
 			$this->_out($dc);
 		}
-		if($this->FillColor!=$fc)
-		{
+
+		if($this->FillColor!=$fc){
 			$this->FillColor = $fc;
 			$this->_out($fc);
 		}
@@ -520,7 +552,7 @@ class TFPDF_TFPDF{
 		return $this->page;
 	}
 
-	function SetDrawColor($r, $g=null, $b=null){
+	function SetDrawColor($r, $g = null, $b = null){
 
 		// HEXADECIMAL COLOR SUPPORT
 		if(preg_match('/[a-fA-F0-9]{6}/', $r)){
@@ -533,10 +565,10 @@ class TFPDF_TFPDF{
 		}
 
 		// Set color for all stroking operations
-		if(($r==0 && $g==0 && $b==0) || $g === null){
-			$this->DrawColor = sprintf('%.3F G',$r/255);
+		if(($r == 0 and $g == 0 and $b == 0) or $g === null){
+			$this->DrawColor = sprintf('%.3F G', ($r / 255));
 		}else{
-			$this->DrawColor = sprintf('%.3F %.3F %.3F RG',$r/255,$g/255,$b/255);
+			$this->DrawColor = sprintf('%.3F %.3F %.3F RG', ($r / 255), ($g / 255), ($b / 255));
 		}
 
 		if($this->page > 0){
@@ -544,7 +576,7 @@ class TFPDF_TFPDF{
 		}
 	}
 
-	function SetDash($black=null, $white=null){
+	function SetDash($black = null, $white = null){
 
 		if($black !== null){
 			$s = sprintf('[%.3F %.3F] 0 d',$black*$this->k,$white*$this->k);
@@ -556,7 +588,7 @@ class TFPDF_TFPDF{
 
 	}
 
-	function SetFillColor($r, $g=null, $b=null){
+	function SetFillColor($r, $g = null, $b = null){
 
 		// HEXADECIMAL COLOR SUPPORT
 		if(preg_match('/[a-fA-F0-9]{6}/', $r)){
@@ -569,13 +601,13 @@ class TFPDF_TFPDF{
 		}
 
 		// Set color for all filling operations
-		if(($r==0 && $g==0 && $b==0) || $g === null){
-			$this->FillColor = sprintf('%.3F g',$r/255);
+		if(($r == 0 and $g == 0 and $b == 0) or $g === null){
+			$this->FillColor = sprintf('%.3F g', ($r / 255));
 		}else{
-			$this->FillColor = sprintf('%.3F %.3F %.3F rg',$r/255,$g/255,$b/255);
+			$this->FillColor = sprintf('%.3F %.3F %.3F rg', ($r / 255), ($g / 255), ($b / 255));
 		}
 
-		$this->ColorFlag = ($this->FillColor!=$this->TextColor);
+		$this->ColorFlag = ($this->FillColor != $this->TextColor);
 		if($this->page > 0){
 			$this->_out($this->FillColor);
 		}
@@ -594,35 +626,56 @@ class TFPDF_TFPDF{
 		}
 
 		// Set color for text
-		if(($r==0 && $g==0 && $b==0) || $g === null)
-			$this->TextColor = sprintf('%.3F g',$r/255);
-		else
-			$this->TextColor = sprintf('%.3F %.3F %.3F rg',$r/255,$g/255,$b/255);
-		$this->ColorFlag = ($this->FillColor!=$this->TextColor);
+		if(($r == 0 and $g == 0 and $b == 0) or $g === null){
+			$this->TextColor = sprintf('%.3F g', ($r / 255));
+		}else{
+			$this->TextColor = sprintf('%.3F %.3F %.3F rg', ($r / 255), ($g / 255), ($b / 255));
+		}
+		$this->ColorFlag = ($this->FillColor != $this->TextColor);
 	}
 
 	function GetStringWidth($s){
 
 		// Get width of a string in the current font
-		$s = (string)$s;
+		$s = (string) $s;
 		$cw = &$this->CurrentFont['cw'];
-		$w=0;
-		if ($this->unifontSubset) {
+		$w = 0;
+
+		if($this->unifontSubset){
+
 			$unicode = $this->UTF8StringToArray($s);
-			foreach($unicode as $char) {
-				if (isset($cw[$char])) { $w += (ord($cw[2*$char])<<8) + ord($cw[2*$char+1]); }
-				else if($char>0 && $char<128 && isset($cw[chr($char)])) { $w += $cw[chr($char)]; }
-				else if(isset($this->CurrentFont['desc']['MissingWidth'])) { $w += $this->CurrentFont['desc']['MissingWidth']; }
-				else if(isset($this->CurrentFont['MissingWidth'])) { $w += $this->CurrentFont['MissingWidth']; }
-				else { $w += 500; }
+
+			foreach($unicode as $char){
+
+				if(isset($cw[$char])){
+
+					$w += (ord($cw[2 * $char]) << 8) + ord($cw[(2 * $char) + 1]);
+
+				}else if($char > 0 and $char < 128 and isset($cw[chr($char)])){
+
+					$w += $cw[chr($char)];
+
+				}else if(isset($this->CurrentFont['desc']['MissingWidth'])){
+
+					$w += $this->CurrentFont['desc']['MissingWidth'];
+
+				}else if(isset($this->CurrentFont['MissingWidth'])){
+
+					$w += $this->CurrentFont['MissingWidth'];
+
+				}else{
+					$w += 500;
+				}
 			}
 		}else{
+
 			$l = strlen($s);
-			for($i=0;$i<$l;$i++){
+			for($i = 0; $i < $l; $i++){
 				$w += $cw[$s[$i]];
 			}
 		}
-		return $w*$this->FontSize/1000;
+
+		return $w * $this->FontSize / 1000;
 	}
 
 	function SetLineWidth($width){
@@ -630,14 +683,14 @@ class TFPDF_TFPDF{
 		// Set line width
 		$this->LineWidth = $width;
 		if($this->page > 0){
-			$this->_out(sprintf('%.2F w',$width*$this->k));
+			$this->_out(sprintf('%.2F w', $width * $this->k));
 		}
 	}
 
 	function Line($x1, $y1, $x2, $y2){
 
 		// Draw a line
-		$this->_out(sprintf('%.2F %.2F m %.2F %.2F l S',$x1*$this->k,($this->h-$y1)*$this->k,$x2*$this->k,($this->h-$y2)*$this->k));
+		$this->_out(sprintf('%.2F %.2F m %.2F %.2F l S', $x1 * $this->k, ($this->h - $y1) * $this->k, $x2 * $this->k, ($this->h - $y2) * $this->k));
 	}
 
 	function Rotate($angle, $x = -1, $y = -1){
@@ -663,7 +716,7 @@ class TFPDF_TFPDF{
 			$c = cos($angle);
 			$s = sin($angle);
 			$cx = $x * $this->k;
-			$cy = ($this->h-$y) * $this->k;
+			$cy = ($this->h - $y) * $this->k;
 
 			$this->_out(sprintf('q %.5F %.5F %.5F %.5F %.2F %.2F cm 1 0 0 1 %.2F %.2F cm',$c,$s,-$s,$c,$cx,$cy,-$cx,-$cy));
 		}
